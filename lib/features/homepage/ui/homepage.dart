@@ -1,20 +1,17 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_week4_picker/features/homepage/widget_builder/floating_button.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter_week4_picker/features/create_post_page/ui/create_post_page.dart';
+import 'package:flutter_week4_picker/post_data/post_data.dart';
 
-class Homepage extends StatelessWidget {
-  Homepage({
-    super.key,
-    // required this.fileResults,
-    // required this.color,
-    // required this.date,
-  });
+class Homepage extends StatefulWidget {
+  const Homepage({super.key});
 
-  File? fileResults;
-  Color? color;
-  DateTime? date;
+  @override
+  State<Homepage> createState() => _HomepageState();
+}
 
+class _HomepageState extends State<Homepage> {
+  PostData dataPostingan = PostData();
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -28,58 +25,88 @@ class Homepage extends StatelessWidget {
             onPressed: (){}, 
             icon: const Icon(Icons.menu)),
         ),
-        body: Container(
-          height: 590,
-          padding: const EdgeInsets.all(20),
-          decoration: const BoxDecoration(
-            border: Border(bottom: BorderSide(color: Colors.black))
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Row(
+        body: ListView.builder(
+            itemCount: dataPostingan.data.length,
+            itemBuilder: (context, index) {
+              return Container(
+                height: 590,
+                padding: const EdgeInsets.all(20),
+                decoration: const BoxDecoration(
+                  border: Border(bottom: BorderSide(color: Colors.black))
+                ),
+                child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  CircleAvatar(
-                    child: Text("A"),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Achmad Faiz Alawi", style: TextStyle(fontWeight:FontWeight.w600)),
-                        const SizedBox(height: 2),
-                        Text("Published: ${DateFormat('dd/MM/yyyy').format(date ?? DateTime.now())}", style: TextStyle(fontSize: 12),)
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundColor: dataPostingan.getColor()[index],
+                        child: Text(dataPostingan.getName()[index][0]),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              dataPostingan.getName()[index], 
+                              style: const TextStyle(fontWeight:FontWeight.w600)),
+                            const SizedBox(height: 2),
+                            Text(
+                                "Published: ${dataPostingan.getPublish()[index]}", 
+                                style: const TextStyle(fontSize: 12),),
+                            ],
+                          ),
+                        )
                       ],
-                    ),
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.file(File(dataPostingan.getCover()[index]), 
+                      width: 600,
+                      height: 200,
+                      fit: BoxFit.cover)
+                  ),  
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  Text(dataPostingan.getCaption()[index],
+                  textAlign: TextAlign.justify,
+                  style: const TextStyle(
+                    height: 1.5
                   )
-                ],
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Image.network(
-                  "https://picsum.photos/seed/picsum/200/300", 
-                  width: 600,
-                  height: 200,
-                  fit: BoxFit.cover)
-              ),  
-              const SizedBox(
-                height: 20,
-              ),
-              Text("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum. Lorem Ipsum is simply du.",
-              textAlign: TextAlign.justify,
-              style: const TextStyle(
-                height: 1.5
-              ),)
-            ],
-          ),
-        ),
-        floatingActionButton: const FloatingButton(),
+                  )
+                          ]),
+              );
+          }),
+        floatingActionButton: floatingButton(context),
       )
     );
+  }
+
+  Padding floatingButton(BuildContext context) {
+    return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: FloatingActionButton(
+          onPressed: (){},
+          child: IconButton(
+            onPressed: (){
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_)=> CreatePostPage(postData: dataPostingan.data)
+                )
+              ).then((updatedData) {
+                setState(() {
+                  dataPostingan.data = updatedData;
+                  debugPrint("DATA: $updatedData");
+                });
+              } );
+            }, 
+            icon: const Icon(Icons.add))),
+      );
   }
 }

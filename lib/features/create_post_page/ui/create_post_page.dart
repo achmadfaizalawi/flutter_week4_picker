@@ -8,7 +8,12 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 
 class CreatePostPage extends StatefulWidget {
-  const CreatePostPage({super.key});
+  List postData;
+
+  CreatePostPage({
+    super.key, 
+    required this.postData,
+    });
 
   @override
   State<CreatePostPage> createState() => _CreatePostPageState();
@@ -39,9 +44,8 @@ class _CreatePostPageState extends State<CreatePostPage> {
               children: <Widget>[
                 const TitleText(text: "Name"),
                 const SizedBox(height: 6),
-                NameBox(onFieldName: (value){
-                  name = value;
-                  debugPrint(name);
+                NameBox(onFieldName: (value)async{
+                  addName(value);
                 }),
                 const SizedBox(height: 10),
                 const TitleText(text: "Publish At"),
@@ -50,7 +54,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
                   onPressed: () async{
                     await datePicker(context).then((value) {
                         setState(() {
-                          _selectedDate = value;                         
+                          _selectedDate = value;                        
                         });
                       });
                   }),
@@ -88,7 +92,16 @@ class _CreatePostPageState extends State<CreatePostPage> {
                   textColor: Colors.white,
                   foregroundColor: Colors.white,
                   onPressed: (){
-                    Navigator.of(context).pop();
+                    setState(() {
+                      widget.postData.add([
+                        {"color": pickerColor},
+                        {"name": name ?? ''},
+                        {"publish": _selectedDate},
+                        {"cover": fileResults},
+                        {"caption": caption}
+                      ]);
+                    });
+                    Navigator.pop(context, widget.postData);
                   },)
               ],
             ),
@@ -106,7 +119,6 @@ class _CreatePostPageState extends State<CreatePostPage> {
           maxLength: 600,
           onFieldSubmitted: (value) {
             caption = value;
-            debugPrint("INPUT USERS : $value");
           },
           decoration: const InputDecoration(
             border: OutlineInputBorder(
@@ -172,5 +184,13 @@ class _CreatePostPageState extends State<CreatePostPage> {
         fileName = fileResults?.path.split('/').last;
       });
     } 
+  }
+
+  void addName(value) async{
+    if(value != null){
+      setState(() {
+        name = value;
+      });
+    }
   }
 }
